@@ -271,6 +271,64 @@ def get_potential_parents(dadName, dadbirthdate, momName, mombirthdate, lastName
 
     
 
+
+
+def load_user_info(file_path):
+    user_info = {}
+    with open(file_path, 'r', newline='') as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            user_id = row['id']
+            name = f"{row['firstName']} {row['lastName']}"
+            user_info[user_id] = name
+    return user_info
+
+
+def getParentsId(tree, id):
+    parentsId = []
+    for person, parents in tree.items():  # Utilisez .items() pour obtenir les paires clé-valeur
+        if person == id:
+            parentsId.extend(parents)  # Utilisez .extend() pour ajouter les éléments de 'parents' à 'parentsId'
+    return parentsId
+
+
+def getSiblings(tree, id, dadId, momId):
+    siblings = []
+
+    for person, parents in tree.items():  # Utilisez .items() pour itérer sur les paires clé-valeur
+        if parents[0] == dadId and parents[1] == momId and person != id:
+            siblings.append(person)
+
+    return siblings
+
+
+
+def print_family_tree(tree, current_id, user_info, indent="", root=True):
+    if root:
+        # Afficher le nom et prénom de l'utilisateur racine
+        print(f"{indent}Arbre Généalogique de {user_info.get(str(current_id), 'ID inconnu')}:")
+        parentsId = getParentsId(tree,current_id)
+        tabSiblings = getSiblings(tree,current_id, parentsId[0], parentsId[1])
+
+        print(Fore.BLUE + "Siblings: " + Style.RESET_ALL)
+        for sibling in tabSiblings:
+            siblingName = user_info.get(str(sibling), 'ID inconnu')
+            print(" - " + siblingName)
+        
+        print(" ")
+        print(Fore.BLUE + "Ancestry: " + Style.RESET_ALL)
+
+    if current_id in tree:
+        for child_id in tree[current_id]:
+            # Utiliser user_info pour récupérer le nom et prénom en fonction de l'ID
+            child_name = user_info.get(str(child_id), 'ID inconnu')
+            print(f"{indent}- {child_name}")
+            # Appel récursif pour afficher les enfants
+            print_family_tree(tree, child_id, user_info, indent + "  ", root=False)
+
+
+
+
 def connected():    # Display the menu whan you are connected
     print("Family tree")
     print(Fore.YELLOW + " -- ADD --" + Style.RESET_ALL)
@@ -336,7 +394,11 @@ def csvToTree():    # Initialise the whole family tree from links.csv
     
     return family_tree
 
-family_tree = csvToTree()  # create the whole tree from links.csv
-print(family_tree)
 
-menu()
+
+user_info = load_user_info('csv/users.csv')
+
+family_tree = csvToTree()  # create the whole tree from links.csv
+print_family_tree(family_tree, 6, user_info)
+
+#menu()
