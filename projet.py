@@ -15,9 +15,10 @@ def menu():     # Dysplay the menu before being connected
         print("")
 
         if choice == '1':
-            if login():
+            success, userId = login()
+            if success:
                 # Actions after successful login, if needed
-                connected()
+                connected(userId)
             else:
                 print(Fore.RED + "Login failed. Please try again." + Style.RESET_ALL)
         elif choice == '2':
@@ -38,6 +39,7 @@ def login():    # Log into the platform
     csv_file = 'csv/users.csv' 
     # Ask the user to enter their username
     username = input("Username (LastName): ")
+    username2 = input("Username (FirstName): ")
 
     # Ask the user to enter their password
     password = input("Password: ")
@@ -46,13 +48,14 @@ def login():    # Log into the platform
     with open(csv_file, 'r', newline='') as file:
         csv_reader = csv.DictReader(file)
         for row in csv_reader:
-            if row['lastName'] == username and row['password'] == password:
+            if row['lastName'] == username and row['firstName'] == username2 and row['password'] == password:
                 print(Fore.GREEN + "Login successful as " + username + Style.RESET_ALL)
+                id = row['id']
                 if row['admin'] == 'y':
                     print("You are an administrator.")
                 else:
                     print("You are not an administrator.")
-                return True
+                return True, id
 
 
     return False
@@ -303,7 +306,7 @@ def getSiblings(tree, id, dadId, momId):
 
 
 
-def print_family_tree(tree, current_id, user_info, indent="", root=True):
+def printFamilyTree(tree, current_id, user_info, indent="", root=True):
     if root:
         # Afficher le nom et prénom de l'utilisateur racine
         print(f"{indent}Arbre Généalogique de {user_info.get(str(current_id), 'ID inconnu')}:")
@@ -324,12 +327,30 @@ def print_family_tree(tree, current_id, user_info, indent="", root=True):
             child_name = user_info.get(str(child_id), 'ID inconnu')
             print(f"{indent}- {child_name}")
             # Appel récursif pour afficher les enfants
-            print_family_tree(tree, child_id, user_info, indent + "  ", root=False)
+            printFamilyTree(tree, child_id, user_info, indent + "  ", root=False)
 
 
 
+def printAncestry(tree, current_id, user_info, indent="", root=True):
+    if root:
+        # Afficher le nom et prénom de l'utilisateur racine
+        print(f"{indent}Arbre Généalogique de {user_info.get(str(current_id), 'ID inconnu')}:")
+        parentsId = getParentsId(tree,current_id)
+        print(" ")
+        print(Fore.BLUE + "Ancestry: " + Style.RESET_ALL)
 
-def connected():    # Display the menu whan you are connected
+    if current_id in tree:
+        for child_id in tree[current_id]:
+            # Utiliser user_info pour récupérer le nom et prénom en fonction de l'ID
+            child_name = user_info.get(str(child_id), 'ID inconnu')
+            print(f"{indent}- {child_name}")
+            # Appel récursif pour afficher les enfants
+            printFamilyTree(tree, child_id, user_info, indent + "  ", root=False)
+
+
+def connected(id):    # Display the menu whan you are connected
+
+    # Menu display
     print("Family tree")
     print(Fore.YELLOW + " -- ADD --" + Style.RESET_ALL)
     print("(1) add a parent")
@@ -345,11 +366,17 @@ def connected():    # Display the menu whan you are connected
     print("(9) look-up your ancestry")
     print("(10) look-up a family ties")
     print("(11) look-up persons without ancestry")
-    print("(12) look-up persons without descendants")
-    
+    print("(12) look-up persons with the most ancestry alive")
+    print(Fore.RED + "(13) Quit" + Style.RESET_ALL)
 
+    # Info collection for different cases
+    user_info = load_user_info('csv/users.csv')
+    family_tree = csvToTree()
+    id = int(id)
+
+    # Run the choice 
     while True:
-        choice = input("Enter your choice (1, 2, or 3): ")
+        choice = input("Enter your choice: ")
 
         if choice == '1':   # add a parent
             break
@@ -364,16 +391,20 @@ def connected():    # Display the menu whan you are connected
         elif choice == '6':     # look-up the entire tree
             break
         elif choice == '7':     # look-up your family tree  
+            printFamilyTree(family_tree, id, user_info)
             break
         elif choice == '8':     # look-up your descendants 
             break
         elif choice == '9':     # look-up your ancestry
+            printAncestry(family_tree, id, user_info)
             break
         elif choice == '10':     # look-up a family ties
             break
         elif choice == '11':     # look-up persons without descendants
             break
         elif choice == '12':     # look-up persons with the most ancestry alive
+            break
+        elif choice == '13':     # Quit
             break
 
         break
@@ -396,9 +427,8 @@ def csvToTree():    # Initialise the whole family tree from links.csv
 
 
 
-user_info = load_user_info('csv/users.csv')
 
-family_tree = csvToTree()  # create the whole tree from links.csv
-print_family_tree(family_tree, 6, user_info)
 
-#menu()
+#print_family_tree(family_tree, 6, user_info)
+
+menu()

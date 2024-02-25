@@ -8,6 +8,8 @@ id,password,firstName,lastName,phoneNumber,nationality,birthdate,dadName,dadBirt
 8,123456,dad2,Brosset,0000000000,France,1111-11-11 00:00:00,NULL,NULL,NULL,NULL,n
 9,123456,mom3,Brosset,0000000000,France,1111-11-11 00:00:00,NULL,NULL,NULL,NULL,n
 10,123456,dad3,Brosset,0000000000,France,1111-11-11 00:00:00,NULL,NULL,NULL,NULL,n
+11,123456,child1,Brosset,0000000000,France,2222-11-11 00:00:00,Marius,2004-06-13 00:00:00,NULL,NULL,n
+12,123456,child2,Brosset,0000000000,France,2222-11-11 00:00:00,Marius,2004-06-13 00:00:00,NULL,NULL,n
 
 
 
