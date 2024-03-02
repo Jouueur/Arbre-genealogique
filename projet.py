@@ -3,22 +3,66 @@ from colorama import Fore, Style
 from datetime import datetime   
 
 
+
+"""
+                 ."-,.__
+                 `.     `.  ,
+              .--'  .._,'"-' `.
+             .    .'         `'
+             `.   /          ,'
+               `  '--.   ,-"'
+                `"`   |  \
+                   -. \, |
+                    `--Y.'      ___.
+                         \     L._, \
+               _.,        `.   <  <\                _
+             ,' '           `, `.   | \            ( `
+          ../, `.            `  |    .\`.           \ \_
+         ,' ,..  .           _.,'    ||\l            )  '".
+        , ,'   \           ,'.-.`-._,'  |           .  _._`.
+      ,' /      \ \        `' ' `--/   | \          / /   ..\
+    .'  /        \ .         |\__ - _ ,'` `        / /     `.`.
+    |  '          ..         `-...-"  |  `-'      / /        . `.
+    | /           |L__           |    |          / /          `. `.
+   , /            .   .          |    |         / /             ` `
+  / /          ,. ,`._ `-_       |    |  _   ,-' /               ` \
+ / .           \"`_/. `-_ \_,.  ,'    +-' `-'  _,        ..,-.    \`.
+.  '         .-f    ,'   `    '.       \__.---'     _   .'   '     \ \
+' /          `.'    l     .' /          \..      ,_|/   `.  ,'`     L`
+|'      _.-""` `.    \ _,'  `            \ `.___`.'"`-.  , |   |    | \
+||    ,'      `. `.   '       _,...._        `  |    `/ '  |   '     .|
+||  ,'          `. ;.,.---' ,'       `.   `.. `-'  .-' /_ .'    ;_   ||
+|| '              V      / /           `   | `   ,'   ,' '.    !  `. ||
+||/            _,-------7 '              . |  `-'    l         /    `||
+. |          ,' .-   ,' ||   DRACOFIRE   | .-.        `.      .'     ||
+ `'        ,'    `".'    |               |    `.        '. -.'       `'
+          /      ,'      |               |,'    \-.._,.'/'
+          .     /        .               .       \    .''
+        .`.    |         `.             /         :_,'.'
+          \ `...\   _     ,'-.        .'         /_.-'
+           `-.__ `,  `'   .  _.>----''.  _  __  /
+                .'        /"'          |  "'   '_
+               /_|.-'\ ,".             '.'`__'-( \
+                 / ,"'"\,'               `/  `-.|" 
+"""
+
+
 def menu():     # Dysplay the menu before being connected
     while True:
         print("")
-        print("Family tree")
-        print("(1) Log In ")
-        print("(2) Sign Up")
-        print("(3) Quit")
+        print(Fore.BLUE + Style.BRIGHT + "Family tree" + Style.RESET_ALL)
+        print("     (1) Log In ")
+        print("     (2) Sign Up")
+        print("     (3) Quit")
 
         choice = input("Enter your choice (1, 2, or 3): ")
         print("")
 
         if choice == '1':
-            success, userId = login()
+            success, userId, admin = login()
             if success:
                 # Actions after successful login, if needed
-                connected(userId)
+                connected(userId, admin)
             else:
                 print(Fore.RED + "Login failed. Please try again." + Style.RESET_ALL)
         elif choice == '2':
@@ -53,9 +97,10 @@ def login():    # Log into the platform
                 id = row['id']
                 if row['admin'] == 'y':
                     print("You are an administrator.")
+                    return True, id, 'y'
                 else:
                     print("You are not an administrator.")
-                return True, id
+                    return True, id, 'n'
 
 
     return False
@@ -274,6 +319,18 @@ def get_potential_parents(dadName, dadbirthdate, momName, mombirthdate, lastName
 
     
 
+def printPersonFromId(idList):
+    csv_file = 'csv/users.csv' 
+    
+    idListStr = [str(id) for id in idList]
+
+    with open(csv_file, 'r', newline='') as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            if row['id'] in idListStr:
+                print(row['firstName'],row['lastName'])
+    
+
 
 
 def load_user_info(file_path):
@@ -287,12 +344,14 @@ def load_user_info(file_path):
     return user_info
 
 
+
 def getParentsId(tree, id):
     parentsId = []
     for person, parents in tree.items():  # Utilisez .items() pour obtenir les paires clé-valeur
         if person == id:
             parentsId.extend(parents)  # Utilisez .extend() pour ajouter les éléments de 'parents' à 'parentsId'
     return parentsId
+
 
 
 def getSiblings(tree, id, dadId, momId):
@@ -331,6 +390,48 @@ def printFamilyTree(tree, current_id, user_info, indent="", root=True):
 
 
 
+def noDescendants(familyTree):      # Print everyone who don't have descendants 
+    noDesc = []
+    csv_file = 'csv/users.csv' 
+    
+
+    with open(csv_file, 'r', newline='') as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            noDesc.append(row['id'])
+
+    noDesc = [int(id) for id in noDesc]
+
+    descendants = set() # initialize a set
+
+    for parents in familyTree.values():
+        for id in parents:
+            descendants.add(id)     # add to the set for non key ids (parents)
+
+    noDesc2 = [id for id in noDesc if id not in descendants]    # add ids to noDesc2 if the id is in the descendants set
+
+    return noDesc2  
+
+
+
+def noAncestry(familyTree):     # Print everyone who don't have ancestry
+    noAsc = []
+    csv_file = 'csv/users.csv' 
+    
+
+    with open(csv_file, 'r', newline='') as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            noAsc.append(row['id'])
+
+    noAsc = [int(id) for id in noAsc]
+
+    noAsc = [id for id in noAsc if id not in familyTree]
+
+    return noAsc    
+
+
+
 def printAncestry(tree, current_id, user_info, indent="", root=True):
     if root:
         # Afficher le nom et prénom de l'utilisateur racine
@@ -348,7 +449,8 @@ def printAncestry(tree, current_id, user_info, indent="", root=True):
             printFamilyTree(tree, child_id, user_info, indent + "  ", root=False)
 
 
-def connected(id):    # Display the menu whan you are connected
+
+def connected(id, admin):    # Display the menu whan you are connected
 
     # Menu display
     print("Family tree")
@@ -364,10 +466,18 @@ def connected(id):    # Display the menu whan you are connected
     print("(7) look-up your family tree")  
     print("(8) look-up your descendants")  
     print("(9) look-up your ancestry")
-    print("(10) look-up a family ties")
-    print("(11) look-up persons without ancestry")
-    print("(12) look-up persons with the most ancestry alive")
-    print(Fore.RED + "(13) Quit" + Style.RESET_ALL)
+    print("(10) look-up your ancestry and descndants")
+    print("(11) look-up family ties")
+    print("(12) look-up persons without ancestry")
+    print("(13) look-up persons without descendants")
+    print("(14) look-up persons with the most ancestry alive")
+    print(Fore.RED + "(15) Quit" + Style.RESET_ALL)
+
+    if admin == 'y':
+            print(Fore.YELLOW + " -- ADMIN --" + Style.RESET_ALL)
+            print("(16) deleting a node and its descendants")
+            print("(17) track the evolution of family tree size.")  
+            print("(18) find the most represented family in the global tree")  
 
     # Info collection for different cases
     user_info = load_user_info('csv/users.csv')
@@ -376,38 +486,57 @@ def connected(id):    # Display the menu whan you are connected
 
     # Run the choice 
     while True:
-        choice = input("Enter your choice: ")
+        choice = input("\nEnter your choice: ")
 
         if choice == '1':   # add a parent
-            break
+            continue
         elif choice == '2':     # add a child 
-            break
+            continue
         elif choice == '3':     # delete yourself 
-            break
+            continue
         elif choice == '4':     # delete a parent
-            break
+            continue
         elif choice == '5':     # delete a child
-            break
+            continue
         elif choice == '6':     # look-up the entire tree
-            break
+            continue
         elif choice == '7':     # look-up your family tree  
             printFamilyTree(family_tree, id, user_info)
-            break
+            
         elif choice == '8':     # look-up your descendants 
-            break
+            continue
         elif choice == '9':     # look-up your ancestry
             printAncestry(family_tree, id, user_info)
-            break
-        elif choice == '10':     # look-up a family ties
-            break
-        elif choice == '11':     # look-up persons without descendants
-            break
-        elif choice == '12':     # look-up persons with the most ancestry alive
-            break
-        elif choice == '13':     # Quit
-            break
+            
+        elif choice == '10':     # look-up ancestry and descendants
+            continue
+        elif choice == '11':     # look-up a family ties
+            continue
+        elif choice == '12':     # look-up persons without ancestry
+            print(" ")
+            print(Fore.YELLOW + "Persons with no recorded ancestry: " + Style.RESET_ALL)
+            printPersonFromId(noAncestry(family_tree))
+            
+        elif choice == '13':     # look-up persons without descendants
+            print(" ")
+            print(Fore.YELLOW + "Persons with no recorded descendants: " + Style.RESET_ALL )
+            printPersonFromId(noDescendants(family_tree))
+            
+        elif choice == '14':     # look-up persons with the most ancestry alive
+            continue
+        elif choice == '15':     # Quit
+            continue
+        elif choice == '16' and admin == 'y':     
+            continue
+        elif choice == '17' and admin == 'y':     
+            continue
+        elif choice == '18' and admin == 'y':    
+            continue
+        
 
-        break
+        
+
+        
         
     
     
@@ -427,8 +556,8 @@ def csvToTree():    # Initialise the whole family tree from links.csv
 
 
 
-
-
+#familyTree = csvToTree()
+#print(familyTree)
 #print_family_tree(family_tree, 6, user_info)
 
 menu()
