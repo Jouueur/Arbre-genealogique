@@ -4,49 +4,6 @@ from datetime import datetime
 
 
 
-"""
-                 ."-,.__
-                 `.     `.  ,
-              .--'  .._,'"-' `.
-             .    .'         `'
-             `.   /          ,'
-               `  '--.   ,-"'
-                `"`   |  \
-                   -. \, |
-                    `--Y.'      ___.
-                         \     L._, \
-               _.,        `.   <  <\                _
-             ,' '           `, `.   | \            ( `
-          ../, `.            `  |    .\`.           \ \_
-         ,' ,..  .           _.,'    ||\l            )  '".
-        , ,'   \           ,'.-.`-._,'  |           .  _._`.
-      ,' /      \ \        `' ' `--/   | \          / /   ..\
-    .'  /        \ .         |\__ - _ ,'` `        / /     `.`.
-    |  '          ..         `-...-"  |  `-'      / /        . `.
-    | /           |L__           |    |          / /          `. `.
-   , /            .   .          |    |         / /             ` `
-  / /          ,. ,`._ `-_       |    |  _   ,-' /               ` \
- / .           \"`_/. `-_ \_,.  ,'    +-' `-'  _,        ..,-.    \`.
-.  '         .-f    ,'   `    '.       \__.---'     _   .'   '     \ \
-' /          `.'    l     .' /          \..      ,_|/   `.  ,'`     L`
-|'      _.-""` `.    \ _,'  `            \ `.___`.'"`-.  , |   |    | \
-||    ,'      `. `.   '       _,...._        `  |    `/ '  |   '     .|
-||  ,'          `. ;.,.---' ,'       `.   `.. `-'  .-' /_ .'    ;_   ||
-|| '              V      / /           `   | `   ,'   ,' '.    !  `. ||
-||/            _,-------7 '              . |  `-'    l         /    `||
-. |          ,' .-   ,' ||   DRACOFIRE   | .-.        `.      .'     ||
- `'        ,'    `".'    |               |    `.        '. -.'       `'
-          /      ,'      |               |,'    \-.._,.'/'
-          .     /        .               .       \    .''
-        .`.    |         `.             /         :_,'.'
-          \ `...\   _     ,'-.        .'         /_.-'
-           `-.__ `,  `'   .  _.>----''.  _  __  /
-                .'        /"'          |  "'   '_
-               /_|.-'\ ,".             '.'`__'-( \
-                 / ,"'"\,'               `/  `-.|" 
-"""
-
-
 def menu():     # Dysplay the menu before being connected
     while True:
         print("")
@@ -71,6 +28,7 @@ def menu():     # Dysplay the menu before being connected
             else:
                 print(Fore.RED + "Sign up failed. Please try again." + Style.RESET_ALL)
         elif choice == '3':
+            
             print("Goodbye!")
             break
         else:
@@ -300,14 +258,14 @@ def get_potential_parents(dadName, dadbirthdate, momName, mombirthdate, lastName
         if potential_fathers:
             chosenDadId = potential_fathers[0]['id']
         else:
-            chosenDadId = None  
+            chosenDadId = 0  
 
 
     if choosenMom == 'y':
         if potential_mothers:
             chosenMomId = potential_mothers[0]['id']
         else:
-            chosenMomId = None 
+            chosenMomId = 0 
 
 
     linkFile= 'csv/links.csv'
@@ -317,7 +275,166 @@ def get_potential_parents(dadName, dadbirthdate, momName, mombirthdate, lastName
 
     print(Fore.GREEN + "You are successfully added in the tree !" + Style.RESET_ALL)
 
+
+
+def update_link(id, idParent, parent, tree):    
+    for person, parents in tree.items():
+        if str(person) == str(id):
+            if parent == 1:
+                parents[0] = idParent
+            elif parent == 2:
+                parents[1] = idParent
+            break
+
+
     
+
+def signup_parent():        # Add a parent
+    # CSV path
+    csv_file = 'csv/users.csv'
+
+    # Ask user personal informations
+    while True:
+        firstName = input("Enter your parent first name: ")
+        if firstName.isalpha():
+            break
+        else:
+            print(Fore.RED + "Invalid input. Please enter a valid first name." + Style.RESET_ALL)
+
+    while True:
+        lastName = input("Enter your parent last name: ")
+        if lastName.isalpha():
+            break
+        else:
+            print(Fore.RED + "Invalid input. Please enter a valid last name." + Style.RESET_ALL)
+
+    while True:
+        password = input("Choose a password: ")
+        # Vous pouvez ajouter des vérifications de complexité de mot de passe ici
+        if len(password) >= 6:
+            break
+        else:
+            print(Fore.RED + "Invalid input. Password should be at least 6 characters long." + Style.RESET_ALL)
+
+    while True:
+        phoneNumber = input("Enter your parent phone number: ")
+        if phoneNumber.isdigit() and len(phoneNumber) == 10:
+            break
+        else:
+            print(Fore.RED + "Invalid input. Please enter a valid phone number." + Style.RESET_ALL)
+
+    while True:
+        nationality = input("Enter your parent nationality: ")
+        if nationality.isalpha():
+            break
+        else:
+            print(Fore.RED + "Invalid input. Please enter a valid phone number." + Style.RESET_ALL)
+
+    while True:
+        birthdate = input("Enter your parent birthday (DD/MM/YYYY format) : ")
+        
+        try:
+            # Verif for date format
+            birthdate = datetime.strptime(birthdate, "%d/%m/%Y")
+            
+            # Can't be in the futur
+            today = datetime.today()
+            if birthdate <= today:
+                break
+            else:
+                print(Fore.RED + "Invalid input. Please enter a valid birthday." + Style.RESET_ALL)
+        except ValueError:
+            print(Fore.RED + "Invalid input. Please enter a valid date in DD/MM/YYYY format." + Style.RESET_ALL)
+
+    while True:
+        dadName = input("Enter your grandfather first name: ")
+        if firstName.isalpha():
+            break
+        else:
+            print(Fore.RED + "Invalid input. Please enter a valid first name." + Style.RESET_ALL)
+
+    while True:
+        dadBirthdate = input("Enter your grandfather's birthday (DD/MM/YYYY format): ")
+        
+        try:
+            # Date format
+            dadBirthdate = datetime.strptime(dadBirthdate, "%d/%m/%Y")
+            
+            # Can't be in the futur
+            today = datetime.today()
+            if dadBirthdate <= today:
+                # Father can't be born after the son
+                if dadBirthdate < birthdate:
+                    break
+                else:
+                    print(Fore.RED + "Your grandfather can't be born after you." + Style.RESET_ALL)
+            else:
+                print(Fore.RED + "Invalid input. Please enter a valid birthday." + Style.RESET_ALL)
+        except ValueError:
+            print(Fore.RED + "Invalid input. Please enter a valid date in DD/MM/YYYY format." + Style.RESET_ALL)
+
+
+    while True:
+        momName = input("Enter your grandmother first name: ")
+        if firstName.isalpha():
+            break
+        else:
+            print(Fore.RED + "Invalid input. Please enter a valid first name." + Style.RESET_ALL)
+
+    while True:
+        momBirthdate = input("Enter your grandmother's birthday (DD/MM/YYYY format): ")
+        
+        try:
+            # Date format
+            momBirthdate = datetime.strptime(momBirthdate, "%d/%m/%Y")
+            
+            # Can't be in the futur
+            today = datetime.today()
+            if momBirthdate <= today:
+                # Mother can't be born after the son
+                if momBirthdate < birthdate:
+                    break
+                else:
+                    print(Fore.RED + "Your grand-mother can't be born after you." + Style.RESET_ALL)
+            else:
+                print(Fore.RED + "Invalid input. Please enter a valid birthday." + Style.RESET_ALL)
+        except ValueError:
+            print(Fore.RED + "Invalid input. Please enter a valid date in DD/MM/YYYY format." + Style.RESET_ALL)
+
+    isAdmin = 'n'
+
+
+    # Look for max(id) to create an unused one
+    with open(csv_file, 'r', newline='') as file:
+        csv_reader = csv.DictReader(file)
+        ids = [int(row['id']) for row in csv_reader]
+
+    new_id = max(ids) + 1
+
+    # Add new user to csv
+    with open(csv_file, 'a', newline='') as file:
+        fieldnames = ['id', 'password', 'firstName', 'lastName', 'phoneNumber', 'nationality' , 'birthdate' , 'dadName' , 'dadBirthdate' , 'momName' , 'momBirthdate', 'admin']
+        csv_writer = csv.DictWriter(file, fieldnames=fieldnames)
+
+        csv_writer.writerow({
+            'id': new_id,
+            'password': password,
+            'firstName': firstName,
+            'lastName': lastName,
+            'phoneNumber' : phoneNumber,
+            'nationality' : nationality,
+            'birthdate' : birthdate,
+            'dadName' : dadName,
+            'dadBirthdate' : dadBirthdate,
+            'momName' : momName,
+            'momBirthdate' : momBirthdate,
+            'admin': isAdmin
+        })
+
+    print(Fore.GREEN + "Registration successful!" + Style.RESET_ALL)
+    return True,new_id
+
+
 
 def printPersonFromId(idList):
     csv_file = 'csv/users.csv' 
@@ -330,7 +447,6 @@ def printPersonFromId(idList):
             if row['id'] in idListStr:
                 print(row['firstName'],row['lastName'])
     
-
 
 
 def load_user_info(file_path):
@@ -450,6 +566,67 @@ def printAncestry(tree, current_id, user_info, indent="", root=True):
 
 
 
+def addParent(tree,id):
+    for person, parents in tree.items():
+        
+        if int(person) == id :
+            if len(parents) == 2 and parents[0] != 0 and parents[1] != 0 :
+                print("You already have 2 parents registered in the family tree")
+                
+                
+            #  ADD YOUR DAD
+            elif(len(parents) == 2 and parents[0] == 0 and parents[1] != 0):
+                print("Do you wish to add your dad ?")
+                while True:
+                    choice = input("(y/n): ")
+                    if choice == 'y' or choice == 'n':
+                        break
+                    else:
+                        print(Fore.RED + "Invalid input. Please enter y or n." + Style.RESET_ALL)
+                
+                if choice == 'y' :
+                    success, idParent = signup_parent()  
+                    update_link(id, idParent, 1, tree)
+
+
+            # ADD YOUR MOM
+            elif(len(parents) == 2 and parents[0] != 0 and parents[1] == 0):
+                print("Do you wish to add your mom ?")
+                while True:
+                    choice = input("(y/n): ")
+                    if choice == 'y' or choice == 'n':
+                        break
+                    else:
+                        print(Fore.RED + "Invalid input. Please enter y or n." + Style.RESET_ALL)
+
+                if choice == 'y' :
+                    success, idParent = signup_parent()  
+                    update_link(id, idParent, 2, tree)
+
+
+            # ADD YOUR DAD OR MOM
+            elif(len(parents) == 2 and parents[0] == 0 and parents[1] == 0):
+                print("Do you wish to add your dad or mom ?")
+                while True:
+                    choice = input("(dad/mom/n): ")
+                    if choice == 'y' or choice == 'n':
+                        break
+                    else:
+                        print(Fore.RED + "Invalid input. Please enter y or n." + Style.RESET_ALL)
+            
+                if choice == 'dad' :
+                    success, idParent = signup_parent()  
+                    update_link(id, idParent, 1, tree)
+
+                elif choice == 'mom' :
+                    success, idParent = signup_parent()  
+                    update_link(id, idParent, 2, tree)
+
+        
+    return True
+
+
+
 def connected(id, admin):    # Display the menu whan you are connected
 
     # Menu display
@@ -481,7 +658,7 @@ def connected(id, admin):    # Display the menu whan you are connected
 
     # Info collection for different cases
     user_info = load_user_info('csv/users.csv')
-    family_tree = csvToTree()
+    familyTree = csvToTree()
     id = int(id)
 
     # Run the choice 
@@ -489,7 +666,8 @@ def connected(id, admin):    # Display the menu whan you are connected
         choice = input("\nEnter your choice: ")
 
         if choice == '1':   # add a parent
-            continue
+            addParent(familyTree,id)
+            continue    # Done
         elif choice == '2':     # add a child 
             continue
         elif choice == '3':     # delete yourself 
@@ -501,12 +679,12 @@ def connected(id, admin):    # Display the menu whan you are connected
         elif choice == '6':     # look-up the entire tree
             continue
         elif choice == '7':     # look-up your family tree  
-            printFamilyTree(family_tree, id, user_info)
+            printFamilyTree(familyTree, id, user_info)
             
         elif choice == '8':     # look-up your descendants 
             continue
         elif choice == '9':     # look-up your ancestry
-            printAncestry(family_tree, id, user_info)
+            printAncestry(familyTree, id, user_info)
             
         elif choice == '10':     # look-up ancestry and descendants
             continue
@@ -515,17 +693,18 @@ def connected(id, admin):    # Display the menu whan you are connected
         elif choice == '12':     # look-up persons without ancestry
             print(" ")
             print(Fore.YELLOW + "Persons with no recorded ancestry: " + Style.RESET_ALL)
-            printPersonFromId(noAncestry(family_tree))
+            printPersonFromId(noAncestry(familyTree))
             
         elif choice == '13':     # look-up persons without descendants
             print(" ")
             print(Fore.YELLOW + "Persons with no recorded descendants: " + Style.RESET_ALL )
-            printPersonFromId(noDescendants(family_tree))
+            printPersonFromId(noDescendants(familyTree))
             
         elif choice == '14':     # look-up persons with the most ancestry alive
             continue
         elif choice == '15':     # Quit
-            continue
+            treeToCsv(familyTree)
+            break
         elif choice == '16' and admin == 'y':     
             continue
         elif choice == '17' and admin == 'y':     
@@ -534,11 +713,6 @@ def connected(id, admin):    # Display the menu whan you are connected
             continue
         
 
-        
-
-        
-        
-    
     
 def csvToTree():    # Initialise the whole family tree from links.csv
     family_tree = {}
@@ -556,8 +730,19 @@ def csvToTree():    # Initialise the whole family tree from links.csv
 
 
 
+def treeToCsv(family_tree):
+    file_path = 'csv/links.csv'
+
+    with open(file_path, 'w', newline='') as file:
+        csv_writer = csv.writer(file)
+        for person, parents in family_tree.items():
+            csv_writer.writerow([person] + parents)
+
+
+
 #familyTree = csvToTree()
 #print(familyTree)
 #print_family_tree(family_tree, 6, user_info)
 
 menu()
+#addParent(familyTree,11)
