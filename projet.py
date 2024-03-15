@@ -61,7 +61,7 @@ def login():    # Log into the platform
                     return True, id, 'n'
 
 
-    return False
+    return False, 0, 'n'
 
 
 
@@ -648,13 +648,13 @@ def connected(id, admin):    # Display the menu whan you are connected
     print("(12) look-up persons without ancestry")
     print("(13) look-up persons without descendants")
     print("(14) look-up persons with the most ancestry alive")
-    print(Fore.RED + "(15) Quit" + Style.RESET_ALL)
+    print(Fore.RED + "(0) Quit" + Style.RESET_ALL)
 
     if admin == 'y':
             print(Fore.YELLOW + " -- ADMIN --" + Style.RESET_ALL)
-            print("(16) deleting a node and its descendants")
-            print("(17) track the evolution of family tree size.")  
-            print("(18) find the most represented family in the global tree")  
+            print("(15) deleting a node and its descendants")
+            print("(16) track the evolution of family tree size.")  
+            print("(17) find the most represented family in the global tree")  
 
     # Info collection for different cases
     user_info = load_user_info('csv/users.csv')
@@ -702,14 +702,14 @@ def connected(id, admin):    # Display the menu whan you are connected
             
         elif choice == '14':     # look-up persons with the most ancestry alive
             continue
-        elif choice == '15':     # Quit
+        elif choice == '0':     # Quit
             treeToCsv(familyTree)
             break
+        elif choice == '15' and admin == 'y':     
+            continue
         elif choice == '16' and admin == 'y':     
             continue
-        elif choice == '17' and admin == 'y':     
-            continue
-        elif choice == '18' and admin == 'y':    
+        elif choice == '17' and admin == 'y':    
             continue
         
 
