@@ -852,17 +852,59 @@ def deleteYourself(id, tree):
         reader = csv.reader(file)
         writer = csv.writer(temp)
         
-        for row in reader:
-            print("Row[0] =", row[0])
-            print("id =", id)
+        for row in reader:        
             if row[0] == 'id' or int(row[0]) != id:  # Copy the rows except yours 
-                print("pass")
                 writer.writerow(row)
 
     # Use the temp file as the new file
     os.remove(csv_file)
     os.rename(temp_file, csv_file)
 
+
+
+def deleteParent(id, tree):
+
+    while True:
+        choice = input("Do you wish to delete your mom or dad? (dad/mom):")
+        if choice == 'mom' or choice == 'dad':
+            break
+        else:
+            print(Fore.RED + "Invalid input. Please enter mom or dad." + Style.RESET_ALL)
+
+    for person, parents in tree.items():
+        if person == id and choice == 'dad':
+            idParent = parents[0]
+        elif person == id and choice == 'mom':
+            idParent = parents[1]
+
+    tree_copy = tree.copy()
+    for person, parents in tree_copy.items():
+        if idParent == id:
+            # Delete rows where you are the son
+            del tree[id]
+        elif parents[0] == idParent:
+            # Delete links with your child
+            parents[0] = 0
+        elif parents[1] == idParent:  
+            # Delete links with your child
+            parents[1] = 0
+
+     # Delete in csv
+    csv_file = 'csv/users.csv'
+    temp_file = 'csv/users_temp.csv'    # use a temp file
+
+    with open(csv_file, 'r') as file, open(temp_file, 'w', newline='') as temp:
+        reader = csv.reader(file)
+        writer = csv.writer(temp)
+        
+        for row in reader:        
+            if row[0] == 'id' or int(row[0]) != idParent:  # Copy the rows except yours 
+                writer.writerow(row)
+
+    # Use the temp file as the new file
+    os.remove(csv_file)
+    os.rename(temp_file, csv_file)
+    
 
 
 def connected(id, admin):    # Display the menu whan you are connected
@@ -917,7 +959,11 @@ def connected(id, admin):    # Display the menu whan you are connected
             break 
 
         elif choice == '4':     # delete a parent
-            continue
+            deleteParent(id, familyTree)
+            treeToCsv(familyTree)
+            print("Delete successfull")
+            break 
+
         elif choice == '5':     # delete a child
             continue
         elif choice == '6':     # look-up the entire tree
