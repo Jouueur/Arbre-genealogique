@@ -1,6 +1,7 @@
+import os
 import csv
-from colorama import Fore, Style
 from datetime import datetime   
+from colorama import Fore, Style
 
 
 
@@ -277,7 +278,7 @@ def get_potential_parents(dadName, dadbirthdate, momName, mombirthdate, lastName
 
 
 
-def update_link(id, idParent, parent, tree):    
+def update_link_parent(id, idParent, parent, tree):    # Add new parents into dico
     for person, parents in tree.items():
         if str(person) == str(id):
             if parent == 1:
@@ -287,7 +288,17 @@ def update_link(id, idParent, parent, tree):
             break
 
 
-    
+
+def update_link_child(childId, dadId, momId, tree):    # Add new child into dico
+    # the child isn't in the tree
+    if childId not in tree:
+        tree[childId] = [dadId, momId]
+    else:
+        # if child was already in tree
+        tree[childId]['dadId'] = dadId
+        tree[childId]['momId'] = momId
+
+
 
 def signup_parent():        # Add a parent
     # CSV path
@@ -396,6 +407,153 @@ def signup_parent():        # Add a parent
                     break
                 else:
                     print(Fore.RED + "Your grand-mother can't be born after you." + Style.RESET_ALL)
+            else:
+                print(Fore.RED + "Invalid input. Please enter a valid birthday." + Style.RESET_ALL)
+        except ValueError:
+            print(Fore.RED + "Invalid input. Please enter a valid date in DD/MM/YYYY format." + Style.RESET_ALL)
+
+    isAdmin = 'n'
+
+
+    # Look for max(id) to create an unused one
+    with open(csv_file, 'r', newline='') as file:
+        csv_reader = csv.DictReader(file)
+        ids = [int(row['id']) for row in csv_reader]
+
+    new_id = max(ids) + 1
+
+    # Add new user to csv
+    with open(csv_file, 'a', newline='') as file:
+        fieldnames = ['id', 'password', 'firstName', 'lastName', 'phoneNumber', 'nationality' , 'birthdate' , 'dadName' , 'dadBirthdate' , 'momName' , 'momBirthdate', 'admin']
+        csv_writer = csv.DictWriter(file, fieldnames=fieldnames)
+
+        csv_writer.writerow({
+            'id': new_id,
+            'password': password,
+            'firstName': firstName,
+            'lastName': lastName,
+            'phoneNumber' : phoneNumber,
+            'nationality' : nationality,
+            'birthdate' : birthdate,
+            'dadName' : dadName,
+            'dadBirthdate' : dadBirthdate,
+            'momName' : momName,
+            'momBirthdate' : momBirthdate,
+            'admin': isAdmin
+        })
+
+    print(Fore.GREEN + "Registration successful!" + Style.RESET_ALL)
+    return True,new_id
+
+
+
+def signup_child():         # Add a child
+    # CSV path
+    csv_file = 'csv/users.csv'
+
+    # Ask user personal informations
+    while True:
+        firstName = input("Enter your child's first name: ")
+        if firstName.isalpha():
+            break
+        else:
+            print(Fore.RED + "Invalid input. Please enter a valid first name." + Style.RESET_ALL)
+
+    while True:
+        lastName = input("Enter your child's last name: ")
+        if lastName.isalpha():
+            break
+        else:
+            print(Fore.RED + "Invalid input. Please enter a valid last name." + Style.RESET_ALL)
+
+    while True:
+        password = input("Choose a password: ")
+        # Vous pouvez ajouter des vérifications de complexité de mot de passe ici
+        if len(password) >= 6:
+            break
+        else:
+            print(Fore.RED + "Invalid input. Password should be at least 6 characters long." + Style.RESET_ALL)
+
+    while True:
+        phoneNumber = input("Enter your child's phone number: ")
+        if phoneNumber.isdigit() and len(phoneNumber) == 10:
+            break
+        else:
+            print(Fore.RED + "Invalid input. Please enter a valid phone number." + Style.RESET_ALL)
+
+    while True:
+        nationality = input("Enter your child's nationality: ")
+        if nationality.isalpha():
+            break
+        else:
+            print(Fore.RED + "Invalid input. Please enter a valid phone number." + Style.RESET_ALL)
+
+    while True:
+        birthdate = input("Enter your child's birthday (DD/MM/YYYY format) : ")
+        
+        try:
+            # Verif for date format
+            birthdate = datetime.strptime(birthdate, "%d/%m/%Y")
+            
+            # Can't be in the futur
+            today = datetime.today()
+            if birthdate <= today:
+                break
+            else:
+                print(Fore.RED + "Invalid input. Please enter a valid birthday." + Style.RESET_ALL)
+        except ValueError:
+            print(Fore.RED + "Invalid input. Please enter a valid date in DD/MM/YYYY format." + Style.RESET_ALL)
+
+    while True:
+        dadName = input("Enter your child's dad first name: ")
+        if firstName.isalpha():
+            break
+        else:
+            print(Fore.RED + "Invalid input. Please enter a valid first name." + Style.RESET_ALL)
+
+    while True:
+        dadBirthdate = input("Enter your child dad birthday (DD/MM/YYYY format): ")
+        
+        try:
+            # Date format
+            dadBirthdate = datetime.strptime(dadBirthdate, "%d/%m/%Y")
+            
+            # Can't be in the futur
+            today = datetime.today()
+            if dadBirthdate <= today:
+                # Father can't be born after the son
+                if dadBirthdate < birthdate:
+                    break
+                else:
+                    print(Fore.RED + "Your grandfather can't be born after you." + Style.RESET_ALL)
+            else:
+                print(Fore.RED + "Invalid input. Please enter a valid birthday." + Style.RESET_ALL)
+        except ValueError:
+            print(Fore.RED + "Invalid input. Please enter a valid date in DD/MM/YYYY format." + Style.RESET_ALL)
+
+
+    while True:
+        momName = input("Enter your child's mom first name: ")
+        if firstName.isalpha():
+            break
+        else:
+            print(Fore.RED + "Invalid input. Please enter a valid first name." + Style.RESET_ALL)
+
+    while True:
+        momBirthdate = input("Enter your child's mom birthday (DD/MM/YYYY format): ")
+        
+        try:
+            # Date format
+            momBirthdate = datetime.strptime(momBirthdate, "%d/%m/%Y")
+            
+            # Can't be in the futur
+            today = datetime.today()
+            if momBirthdate <= today:
+                # Mother can't be born after the son
+                if momBirthdate < birthdate:
+                    break
+                else:
+                    print(Fore.RED + "Your child's mom can't be born after him." + Style.RESET_ALL)
             else:
                 print(Fore.RED + "Invalid input. Please enter a valid birthday." + Style.RESET_ALL)
         except ValueError:
@@ -551,7 +709,6 @@ def noAncestry(familyTree):     # Print everyone who don't have ancestry
 def printAncestry(tree, current_id, user_info, indent="", root=True):
     if root:
         # Afficher le nom et prénom de l'utilisateur racine
-        print(f"{indent}Arbre Généalogique de {user_info.get(str(current_id), 'ID inconnu')}:")
         parentsId = getParentsId(tree,current_id)
         print(" ")
         print(Fore.BLUE + "Ancestry: " + Style.RESET_ALL)
@@ -563,6 +720,30 @@ def printAncestry(tree, current_id, user_info, indent="", root=True):
             print(f"{indent}- {child_name}")
             # Appel récursif pour afficher les enfants
             printFamilyTree(tree, child_id, user_info, indent + "  ", root=False)
+
+
+
+def printDescendants(tree, current_id, user_info, indent="", root=True):
+    if root:
+        # Afficher le nom et prénom de l'individu dont on cherche les descendants
+        print(" ")
+        print(Fore.BLUE + "Descendants: " + Style.RESET_ALL)
+
+    descendants = set()
+
+    # Fonction récursive pour récupérer tous les descendants
+    def get_descendants(person_id):
+        if person_id in tree:
+            for parent_id, child_id in tree.items():
+                if person_id in child_id:
+                    descendants.add(parent_id)
+                    get_descendants(parent_id)
+
+    get_descendants(current_id)
+
+    for descendant_id in descendants:
+        descendant_name = user_info.get(str(descendant_id), 'ID inconnu')
+        print(f"{indent}- {descendant_name}")
 
 
 
@@ -586,7 +767,7 @@ def addParent(tree,id):
                 
                 if choice == 'y' :
                     success, idParent = signup_parent()  
-                    update_link(id, idParent, 1, tree)
+                    update_link_parent(id, idParent, 1, tree)
 
 
             # ADD YOUR MOM
@@ -601,7 +782,7 @@ def addParent(tree,id):
 
                 if choice == 'y' :
                     success, idParent = signup_parent()  
-                    update_link(id, idParent, 2, tree)
+                    update_link_parent(id, idParent, 2, tree)
 
 
             # ADD YOUR DAD OR MOM
@@ -616,14 +797,71 @@ def addParent(tree,id):
             
                 if choice == 'dad' :
                     success, idParent = signup_parent()  
-                    update_link(id, idParent, 1, tree)
+                    update_link_parent(id, idParent, 1, tree)
 
                 elif choice == 'mom' :
                     success, idParent = signup_parent()  
-                    update_link(id, idParent, 2, tree)
+                    update_link_parent(id, idParent, 2, tree)
 
         
     return True
+
+
+
+def addChild(tree, id):
+
+
+    success, childId = signup_child()
+
+    while True:
+        sex = input("Are you the dad or mom? (dad/mom): ")
+        if sex == 'dad' or sex == 'mom':
+            break
+        else:
+            print(Fore.RED + "Invalid input. Please enter dad or mom." + Style.RESET_ALL)
+
+    if sex == 'dad':
+        update_link_child(childId, id, 0, tree)
+        
+    if sex == 'mom':
+        update_link_child(childId, 0, id, tree)
+
+
+
+def deleteYourself(id, tree):
+    
+    # Copy the tree
+    tree_copy = tree.copy()
+    
+    for person, parents in tree_copy.items():
+        if person == id:
+            # Delete rows where you are the son
+            del tree[id]
+        elif parents[0] == id:
+            # Delete links with your child
+            parents[0] = 0
+        elif parents[1] == id:  
+            # Delete links with your child
+            parents[1] = 0
+
+    # Delete in csv
+    csv_file = 'csv/users.csv'
+    temp_file = 'csv/users_temp.csv'    # use a temp file
+
+    with open(csv_file, 'r') as file, open(temp_file, 'w', newline='') as temp:
+        reader = csv.reader(file)
+        writer = csv.writer(temp)
+        
+        for row in reader:
+            print("Row[0] =", row[0])
+            print("id =", id)
+            if row[0] == 'id' or int(row[0]) != id:  # Copy the rows except yours 
+                print("pass")
+                writer.writerow(row)
+
+    # Use the temp file as the new file
+    os.remove(csv_file)
+    os.rename(temp_file, csv_file)
 
 
 
@@ -648,7 +886,6 @@ def connected(id, admin):    # Display the menu whan you are connected
     print("(12) look-up persons without ancestry")
     print("(13) look-up persons without descendants")
     print("(14) look-up persons with the most ancestry alive")
-    print(Fore.RED + "(0) Quit" + Style.RESET_ALL)
 
     if admin == 'y':
             print(Fore.YELLOW + " -- ADMIN --" + Style.RESET_ALL)
@@ -656,6 +893,8 @@ def connected(id, admin):    # Display the menu whan you are connected
             print("(16) track the evolution of family tree size.")  
             print("(17) find the most represented family in the global tree")  
 
+    print(Fore.RED + "(0) Quit" + Style.RESET_ALL)
+    
     # Info collection for different cases
     user_info = load_user_info('csv/users.csv')
     familyTree = csvToTree()
@@ -667,11 +906,16 @@ def connected(id, admin):    # Display the menu whan you are connected
 
         if choice == '1':   # add a parent
             addParent(familyTree,id)
-            continue    # Done
+                
         elif choice == '2':     # add a child 
-            continue
+            addChild(familyTree,id)
+
         elif choice == '3':     # delete yourself 
-            continue
+            deleteYourself(id, familyTree)
+            treeToCsv(familyTree)
+            print("Delete successfull")
+            break 
+
         elif choice == '4':     # delete a parent
             continue
         elif choice == '5':     # delete a child
@@ -680,36 +924,41 @@ def connected(id, admin):    # Display the menu whan you are connected
             continue
         elif choice == '7':     # look-up your family tree  
             printFamilyTree(familyTree, id, user_info)
+            printDescendants(familyTree, id, user_info)
             
         elif choice == '8':     # look-up your descendants 
-            continue
+            printDescendants(familyTree, id, user_info)
+
         elif choice == '9':     # look-up your ancestry
             printAncestry(familyTree, id, user_info)
             
         elif choice == '10':     # look-up ancestry and descendants
-            continue
+            printAncestry(familyTree, id, user_info)
+            printDescendants(familyTree, id, user_info)
+
         elif choice == '11':     # look-up a family ties
             continue
         elif choice == '12':     # look-up persons without ancestry
-            print(" ")
-            print(Fore.YELLOW + "Persons with no recorded ancestry: " + Style.RESET_ALL)
+            print(Fore.YELLOW + "\nPersons with no recorded ancestry: " + Style.RESET_ALL)
             printPersonFromId(noAncestry(familyTree))
             
         elif choice == '13':     # look-up persons without descendants
             print(" ")
-            print(Fore.YELLOW + "Persons with no recorded descendants: " + Style.RESET_ALL )
+            print(Fore.YELLOW + "\nPersons with no recorded descendants: " + Style.RESET_ALL )
             printPersonFromId(noDescendants(familyTree))
             
         elif choice == '14':     # look-up persons with the most ancestry alive
             continue
         elif choice == '0':     # Quit
+            print(familyTree)
             treeToCsv(familyTree)
+
             break
-        elif choice == '15' and admin == 'y':     
+        elif choice == '15' and admin == 'y':       # deleting a node and its descendants
             continue
-        elif choice == '16' and admin == 'y':     
+        elif choice == '16' and admin == 'y':       # track the evolution of family tree size.
             continue
-        elif choice == '17' and admin == 'y':    
+        elif choice == '17' and admin == 'y':       # find the most represented family in the global tree
             continue
         
 
