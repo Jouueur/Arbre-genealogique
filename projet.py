@@ -32,6 +32,7 @@ def menu():     # Dysplay the menu before being connected
             
             print("Goodbye!")
             break
+        
         else:
             print("Invalid choice. Please enter 1 (to log in), 2 (to sign up), or 3 (to quit).")
 
@@ -87,7 +88,6 @@ def signup():       # create an account and register in the database
 
     while True:
         password = input("Choose a password: ")
-        # Vous pouvez ajouter des vérifications de complexité de mot de passe ici
         if len(password) >= 6:
             break
         else:
@@ -258,15 +258,15 @@ def get_potential_parents(dadName, dadbirthdate, momName, mombirthdate, lastName
     if choosenDad == 'y':
         if potential_fathers:
             chosenDadId = potential_fathers[0]['id']
-        else:
-            chosenDadId = 0  
+    else:
+        chosenDadId = 0  
 
 
     if choosenMom == 'y':
         if potential_mothers:
             chosenMomId = potential_mothers[0]['id']
-        else:
-            chosenMomId = 0 
+    else:
+        chosenMomId = 0 
 
 
     linkFile= 'csv/links.csv'
@@ -846,7 +846,7 @@ def deleteYourself(id, tree):
 
     # Delete in csv
     csv_file = 'csv/users.csv'
-    temp_file = 'csv/users_temp.csv'    # use a temp file
+    temp_file = 'users_temp.csv'    # use a temp file
 
     with open(csv_file, 'r') as file, open(temp_file, 'w', newline='') as temp:
         reader = csv.reader(file)
@@ -891,7 +891,7 @@ def deleteParent(id, tree):
 
      # Delete in csv
     csv_file = 'csv/users.csv'
-    temp_file = 'csv/users_temp.csv'    # use a temp file
+    temp_file = 'users_temp.csv'    # use a temp file
 
     with open(csv_file, 'r') as file, open(temp_file, 'w', newline='') as temp:
         reader = csv.reader(file)
@@ -905,6 +905,180 @@ def deleteParent(id, tree):
     os.remove(csv_file)
     os.rename(temp_file, csv_file)
     
+
+
+def lookupFamilyTies(family_tree, user_id, user_info):
+    print("Choose a family tie to look up:")
+    print("(1) Grandparents")
+    print("(2) Parents")
+    print("(3) Siblings")
+    print("(4) Children")
+    print("(5) Aunts and Uncles")
+    print("(6) Partenaire")
+    print("(7) GrandChildrens")
+    
+    while True:
+        choice = input("\nEnter your choice: ")
+        if choice == '1' or choice == '2' or choice == '3' or choice == '4' or choice == '5' or choice == '6' or choice =='7':
+            break
+        else:
+            print(Fore.RED + "Invalid input. Please enter a valid phone number." + Style.RESET_ALL)
+
+    if choice == '1':  # Grandparents
+        print("Looking up grandparents...")
+        grandparents = getGrandparents(family_tree, user_id)
+        print(Fore.BLUE + "\nGrandparents: " + Style.RESET_ALL)
+        printPersonsFromId(grandparents, user_info)
+
+    elif choice == '2':  # Parents
+        print("Looking up parents...")
+        parents = getParents(family_tree, user_id)
+        print(Fore.BLUE + "\nParents:" + Style.RESET_ALL)
+        printPersonsFromId(parents, user_info)
+
+    elif choice == '3':  # Siblings
+        print("Looking up siblings...")
+        siblings = getSiblings(family_tree, user_id)
+        print(Fore.BLUE + "\nSiblings:" + Style.RESET_ALL)
+        printPersonsFromId(siblings, user_info)
+
+    elif choice == '4':  # Children
+        print("Looking up children...")
+        children = getChildren(family_tree, user_id)
+        print(Fore.BLUE + "\nChildren:" + Style.RESET_ALL)
+        printPersonsFromId(children, user_info)
+
+    elif choice == '5':  # Aunts and Uncles
+        print("Looking up aunts and uncles...")
+        aunts_uncles = getAuntsUncles(family_tree, user_id)
+        print(Fore.BLUE + "\nAunts and Uncles:" + Style.RESET_ALL )
+        printPersonsFromId(aunts_uncles, user_info)
+    
+    elif choice == '6':  # Spouse
+        print("Looking up spouse")
+        spouse = getSpouse(family_tree, user_id)
+        print(Fore.BLUE + "\nSpouse:" + Style.RESET_ALL)
+        printPersonsFromId(spouse, user_info)
+
+    elif choice == '7':  # GrandChildrens
+        print("Looking up GrandChildrens")
+        grandchildren= getGrandChildren(family_tree, user_id)
+        print(Fore.BLUE + "\nGrandChildrens:" + Style.RESET_ALL)
+        printPersonsFromId(grandchildren, user_info)
+    else:
+        print("Invalid choice.")
+
+def getParents(family_tree, user_id): 
+    parents = family_tree.get(user_id, [])
+    return parents
+
+def getGrandparents(family_tree, user_id):
+    grandparents = set()
+    parents = getParents(family_tree, user_id)
+    for parent_id in parents:
+        grandparents.update(getParents(family_tree, parent_id))
+    return grandparents
+
+def getChildren(family_tree, user_id):
+    children = []
+    for person_id, parent_ids in family_tree.items():
+        if user_id in parent_ids:
+            children.append(person_id)
+    return children
+
+def getSiblings(family_tree, user_id):
+    siblings = set()  
+    parents = getParents(family_tree, user_id)
+    for parent in parents:
+        parent_children = getChildren(family_tree, parent)
+        siblings.update(child for child in parent_children if child != user_id)
+    return list(siblings)  
+
+def getAuntsUncles(family_tree, user_id):
+    aunts_uncles = set()
+    grandparents = []
+    parents = getParents(family_tree, user_id)
+    for parent in parents:
+        grandparents.extend(getParents(family_tree, parent))
+
+    for grandparent in grandparents:
+        grandparent_children = getChildren(family_tree, grandparent)
+        for aunt_uncle in grandparent_children:
+            if aunt_uncle != user_id and aunt_uncle not in parents:
+                aunts_uncles.add(aunt_uncle)
+
+    return list(aunts_uncles)
+
+def getGrandChildren(family_tree, user_id):
+    grand_children = []
+    children = getChildren(family_tree, user_id)
+    for child in children:
+        grand_children.extend(getChildren(family_tree, child))
+    return grand_children
+
+def getSpouse(family_tree, user_id):
+    spouse = set()
+    children = getChildren(family_tree, user_id)
+    for child in children:
+        parents = getParents(family_tree, child)
+        for parent in parents:
+            if parent != user_id:
+                spouse.add(parent)
+    return list(spouse)
+
+def printPersonsFromId(ids, user_info):
+    for id in ids:
+        print(user_info.get(str(id), "Unknown"))
+
+
+
+def mostAncestryAlive(tree, user_info):
+    max_ancestry_count = 0
+    persons_with_max_ancestry = []
+
+    for person_id in tree.keys():
+        ancestry_count = countAncestry(tree, person_id)
+        if ancestry_count > max_ancestry_count:
+            max_ancestry_count = ancestry_count
+            persons_with_max_ancestry = [person_id]
+        elif ancestry_count == max_ancestry_count:
+            persons_with_max_ancestry.append(person_id)
+
+    if persons_with_max_ancestry:
+        print("Persons with the most ancestry alive:")
+        for person_id in persons_with_max_ancestry:
+            print(f"{user_info.get(str(person_id), 'Unknown')}:")
+            printAncestry(tree, person_id, user_info)
+            print(f"They have {max_ancestry_count} ancestors.\n")
+    else:
+        print("No person with ancestry found in the tree.")
+
+
+
+def countAncestry(tree, person_id):
+    visited = set()
+
+    def dfs(current_id):
+        if current_id not in visited:
+            visited.add(current_id)
+            count = 1
+            if current_id in tree:
+                for parent_id in tree[current_id]:
+                    count += dfs(parent_id)
+            return count
+        return 0
+
+    return dfs(person_id) - 1  
+
+
+
+def printAncestry(tree, current_id, user_info, indent=""):
+    if current_id in tree:
+        for parent_id in tree[current_id]:
+            parent_name = user_info.get(str(parent_id), 'Unknown')
+            print(f"{indent}- {parent_name}")
+            printAncestry(tree, parent_id, user_info, indent + "  ")
+
 
 
 def connected(id, admin):    # Display the menu whan you are connected
@@ -968,6 +1142,7 @@ def connected(id, admin):    # Display the menu whan you are connected
             continue
         elif choice == '6':     # look-up the entire tree
             continue
+
         elif choice == '7':     # look-up your family tree  
             printFamilyTree(familyTree, id, user_info)
             printDescendants(familyTree, id, user_info)
@@ -983,7 +1158,8 @@ def connected(id, admin):    # Display the menu whan you are connected
             printDescendants(familyTree, id, user_info)
 
         elif choice == '11':     # look-up a family ties
-            continue
+           lookupFamilyTies(familyTree, id, user_info)
+
         elif choice == '12':     # look-up persons without ancestry
             print(Fore.YELLOW + "\nPersons with no recorded ancestry: " + Style.RESET_ALL)
             printPersonFromId(noAncestry(familyTree))
@@ -994,12 +1170,8 @@ def connected(id, admin):    # Display the menu whan you are connected
             printPersonFromId(noDescendants(familyTree))
             
         elif choice == '14':     # look-up persons with the most ancestry alive
-            continue
-        elif choice == '0':     # Quit
-            print(familyTree)
-            treeToCsv(familyTree)
+            mostAncestryAlive(familyTree, user_info)
 
-            break
         elif choice == '15' and admin == 'y':       # deleting a node and its descendants
             continue
         elif choice == '16' and admin == 'y':       # track the evolution of family tree size.
@@ -1007,9 +1179,13 @@ def connected(id, admin):    # Display the menu whan you are connected
         elif choice == '17' and admin == 'y':       # find the most represented family in the global tree
             continue
         
+        elif choice == '0':     # Quit
+            print(familyTree)
+            treeToCsv(familyTree)
+            break
 
     
-def csvToTree():    # Initialise the whole family tree from links.csv
+def csvToTree():    # Initialise the whole family tree from csv/links.csv
     family_tree = {}
     
     file_path = 'csv/links.csv'
