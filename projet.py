@@ -594,18 +594,28 @@ def signup_child():         # Add a child
 
 
 
-def printPersonFromId(idList):
+def printPersonFromId(id):
     csv_file = 'csv/users.csv' 
-    idListStr = [str(id) for id in idList]
-    names = []
     
     with open(csv_file, 'r', newline='') as file:
         csv_reader = csv.DictReader(file)
         for row in csv_reader:
-            if row['id'] in idListStr:
-                names.append((row['firstName'], row['lastName']))
+            if row['id'] in str(id):
+                print(row['firstName'], row['lastName'])
     
-    return names
+
+
+
+def printPersonFromId1(idList):
+    csv_file = 'csv/users.csv' 
+    
+    idListStr = [str(id) for id in idList]
+
+    with open(csv_file, 'r', newline='') as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            if row['id'] in idListStr:
+                print(row['firstName'],row['lastName'])
     
 
 
@@ -700,16 +710,19 @@ def noDescendants(familyTree):      # Print everyone who don't have descendants
         for row in csv_reader:
             noDesc.append(row['id'])
 
+
     noDesc = [int(id) for id in noDesc]
 
+
     descendants = set() # initialize a set
+
+    
 
     for parents in familyTree.values():
         for id in parents:
             descendants.add(id)     # add to the set for non key ids (parents)
 
     noDesc2 = [id for id in noDesc if id not in descendants]    # add ids to noDesc2 if the id is in the descendants set
-
     return noDesc2  
 
 
@@ -948,7 +961,8 @@ def deleteChild(id, tree):
         print("Children found:")
         for index, child in enumerate(childs, start=1):
             print(f"({index})")
-            printPersonFromId(child)
+            printPersonFromId([child])  # Appel avec une liste contenant l'identifiant
+
         
         choice = input("Choose which child you want to delete (enter the corresponding number): ")
         while not choice.isdigit() or int(choice) < 1 or int(choice) > len(childs):
@@ -1292,6 +1306,7 @@ def remove_person_from_csv(id):
     os.rename(temp_file, csv_file)
 
 
+
 def get_descendants(tree, person_id):
     descendants = set()
 
@@ -1304,7 +1319,6 @@ def get_descendants(tree, person_id):
 
     recursive_descendants(person_id)
     return descendants
-
 
 
 
@@ -1322,8 +1336,6 @@ def delete_node_and_descendants(id, tree, user_info):
     # Remove person from users.csv
     remove_person_from_csv(id)
     print(f"{user_info.get(str(id), 'Unknown')} has been removed from the Tree")
-
-
 
 
 
@@ -1433,12 +1445,12 @@ def connected(id, admin):    # Display the menu when you are connected
 
         elif choice == '12':     # look-up persons without ancestry
             print(Fore.YELLOW + "\nPersons with no recorded ancestry: " + Style.RESET_ALL)
-            printPersonFromId(noAncestry(familyTree))
+            printPersonFromId1(noAncestry(familyTree))
             
         elif choice == '13':     # look-up persons without descendants
-            print(" ")
             print(Fore.YELLOW + "\nPersons with no recorded descendants: " + Style.RESET_ALL )
-            printPersonFromId(noDescendants(familyTree))
+            noD = noDescendants(familyTree)
+            printPersonFromId1(noD)
             
         elif choice == '14':     # look-up persons with the most ancestry alive
             mostAncestryAlive(familyTree, user_info)
