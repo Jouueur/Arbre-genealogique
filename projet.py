@@ -1421,6 +1421,7 @@ def connected(id, admin):    # Display the menu when you are connected
             printDescendants(familyTree, id, user_info)
 
         elif choice == '9':     # look-up your ancestry
+            print(Fore.BLUE + "Ancestry"  + Style.RESET_ALL)
             printAncestry(familyTree, id, user_info)
             
         elif choice == '10':     # look-up ancestry and descendants
