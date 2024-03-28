@@ -1292,39 +1292,38 @@ def remove_person_from_csv(id):
     os.rename(temp_file, csv_file)
 
 
-
-def get_descendant(tree, person_id):
+def get_descendants(tree, person_id):
     descendants = set()
 
     def recursive_descendants(current_id):
         if current_id in tree:
-            child_ids = tree[current_id]
-            descendants.update(child_ids)
-            for child_id in child_ids:
-                recursive_descendants(child_id)
+            for parent_id, child_ids in tree.items():
+                if current_id in child_ids:
+                    descendants.add(parent_id)
+                    recursive_descendants(parent_id)
 
     recursive_descendants(person_id)
     return descendants
 
 
 
+
 def delete_node_and_descendants(id, tree, user_info):
     has_spouse = bool(getSpouse(tree, id))
 
-    descendants = get_descendant(tree, id)
+    descendants = get_descendants(tree, id)
 
     if descendants:
-        print("Deleting descendants...")
         for descendant_id in descendants:
             delete_node_and_descendants(descendant_id, tree, user_info)
 
-    print(f"Deleting {user_info.get(str(id), 'Unknown')} and their descendants...")
     delete_person(id, tree)
-    print(f"{user_info.get(str(id), 'Unknown')} and their descendants have been deleted.")
 
     # Remove person from users.csv
     remove_person_from_csv(id)
-    print(f"{user_info.get(str(id), 'Unknown')} has been removed from users.csv.")
+    print(f"{user_info.get(str(id), 'Unknown')} has been removed from the Tree")
+
+
 
 
 
