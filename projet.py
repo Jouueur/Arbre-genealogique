@@ -11,7 +11,7 @@ def menu():     # Dysplay the menu before being connected
         print(Fore.BLUE + Style.BRIGHT + "Family tree" + Style.RESET_ALL)
         print("     (1) Log In ")
         print("     (2) Sign Up")
-        print("     (3) Quit")
+        print(Fore.RED + "     (3) Quit" + Style.RESET_ALL)
 
         choice = input("Enter your choice (1, 2, or 3): ")
         print("")
@@ -40,10 +40,10 @@ def menu():     # Dysplay the menu before being connected
 
 def login():    # Log into the platform
     # CSV path
-    csv_file = 'users.csv' 
+    csv_file = 'csv/users.csv' 
     # Ask the user to enter their username
     username = input("Username (LastName): ")
-    username2 = input("Username (id): ")
+    username2 = input("Username (FirstName): ")
 
     # Ask the user to enter their password
     password = input("Password: ")
@@ -69,7 +69,7 @@ def login():    # Log into the platform
 
 def signup():       # create an account and register in the database
     # CSV path
-    csv_file = 'users.csv'
+    csv_file = 'csv/users.csv'
 
     # Ask user personal informations
     while True:
@@ -215,7 +215,7 @@ def signup():       # create an account and register in the database
 
 
 def get_potential_parents(dadName, dadbirthdate, momName, mombirthdate, lastName, id):      # Get a list of potential parents
-    csv_file = 'users.csv'
+    csv_file = 'csv/users.csv'
     potential_fathers = []
     potential_mothers = []
     with open(csv_file, 'r', newline='') as file:
@@ -269,7 +269,7 @@ def get_potential_parents(dadName, dadbirthdate, momName, mombirthdate, lastName
         chosenMomId = 0 
 
 
-    linkFile= 'links.csv'
+    linkFile= 'csv/links.csv'
     with open(linkFile, 'a', newline='') as file:
         csv_writer = csv.writer(file)
         csv_writer.writerow([id, chosenDadId, chosenMomId])
@@ -302,7 +302,7 @@ def update_link_child(childId, dadId, momId, tree):    # Add new child into dico
 
 def signup_parent():        # Add a parent
     # CSV path
-    csv_file = 'users.csv'
+    csv_file = 'csv/users.csv'
 
     # Ask user personal informations
     while True:
@@ -449,7 +449,7 @@ def signup_parent():        # Add a parent
 
 def signup_child():         # Add a child
     # CSV path
-    csv_file = 'users.csv'
+    csv_file = 'csv/users.csv'
 
     # Ask user personal informations
     while True:
@@ -595,7 +595,7 @@ def signup_child():         # Add a child
 
 
 def printPersonFromId(idList):
-    csv_file = 'users.csv' 
+    csv_file = 'csv/users.csv' 
     idListStr = [str(id) for id in idList]
     names = []
     
@@ -641,32 +641,6 @@ def getSibling(tree, id, dadId, momId):
 
 
 
-"""def printFamilyTree(tree, current_id, user_info, indent="", root=True):
-    if root:
-        # Afficher le nom et prénom de l'utilisateur racine
-        print(f"{indent}Arbre Généalogique de {user_info.get(str(current_id), 'ID inconnu')}:")
-        parentsId = getParentsId(tree,current_id)
-        tabSiblings = getSibling(tree,current_id, parentsId[0], parentsId[1])
-        tabC = getAuntsUncles(tree, current_id)
-        tabS = getSpouse(tree, current_id)
-
-        print(Fore.BLUE + "Siblings: " + Style.RESET_ALL)
-        for sibling in tabSiblings:
-            siblingName = user_info.get(str(sibling), 'ID inconnu')
-            print(" - " + siblingName)
-        
-        print(" ")
-        print(Fore.BLUE + "Ancestry: " + Style.RESET_ALL)
-
-    if current_id in tree:
-        for child_id in tree[current_id]:
-            # Utiliser user_info pour récupérer le nom et prénom en fonction de l'ID
-            child_name = user_info.get(str(child_id), 'ID inconnu')
-            print(f"{indent}- {child_name}")
-            # Appel récursif pour afficher les enfants
-            printFamilyTree(tree, child_id, user_info, indent + "  ", root=False)"""
-
-
 def printFamilyTree(tree, current_id, user_info, indent="", root=True):
     if root:
         # Afficher le nom et prénom de l'utilisateur racine
@@ -676,6 +650,7 @@ def printFamilyTree(tree, current_id, user_info, indent="", root=True):
         tabC = getAuntsUncles(tree, current_id)
         tabS = getSpouse(tree, current_id)
         tabD = getCousins(tree, current_id)
+        tabN = getNephews(tree, current_id)
 
         print(Fore.BLUE + "Siblings: " + Style.RESET_ALL)
         for sibling in tabSiblings:
@@ -684,7 +659,7 @@ def printFamilyTree(tree, current_id, user_info, indent="", root=True):
                 
         print(Fore.BLUE + "\nSpouse: " + Style.RESET_ALL)
         spouse_id = tabS[0] if tabS else None
-        spouse_name = user_info.get(str(spouse_id), 'Non marié(e)')
+        spouse_name = user_info.get(str(spouse_id), 'No wife/husband')
         print(" - " + spouse_name)
         
         print(Fore.BLUE + "\nUncles and Aunts: " + Style.RESET_ALL)
@@ -696,6 +671,12 @@ def printFamilyTree(tree, current_id, user_info, indent="", root=True):
         for cousins_id in tabD:
             cousins_name = user_info.get(str(cousins_id), 'ID inconnu')
             print(" - " + cousins_name)
+
+        print(Fore.BLUE + "\nNephews: " + Style.RESET_ALL)
+        for nephews_id in tabN:
+            nephews_name = user_info.get(str(nephews_id), 'ID inconnu')
+            print(" - " + nephews_name)
+
 
 
         print(Fore.BLUE + "\nAncestry: " + Style.RESET_ALL)
@@ -711,7 +692,7 @@ def printFamilyTree(tree, current_id, user_info, indent="", root=True):
 
 def noDescendants(familyTree):      # Print everyone who don't have descendants 
     noDesc = []
-    csv_file = 'users.csv' 
+    csv_file = 'csv/users.csv' 
     
 
     with open(csv_file, 'r', newline='') as file:
@@ -735,7 +716,7 @@ def noDescendants(familyTree):      # Print everyone who don't have descendants
 
 def noAncestry(familyTree):     # Print everyone who don't have ancestry
     noAsc = []
-    csv_file = 'users.csv' 
+    csv_file = 'csv/users.csv' 
     
 
     with open(csv_file, 'r', newline='') as file:
@@ -781,8 +762,6 @@ def printDescendants(tree, current_id, user_info, indent="", root=True):
     for descendant_id in descendants:
         descendant_name = user_info.get(str(descendant_id), 'ID inconnu')
         print(f"{indent}- {descendant_name}")
-
-
 
 
 
@@ -884,7 +863,7 @@ def deleteYourself(id, tree):
             parents[1] = 0
 
     # Delete in csv
-    csv_file = 'users.csv'
+    csv_file = 'csv/users.csv'
     temp_file = 'users_temp.csv'    # use a temp file
 
     with open(csv_file, 'r') as file, open(temp_file, 'w', newline='') as temp:
@@ -931,8 +910,8 @@ def deleteParent(id, tree):
             parents1[1] = 0
 
      # Delete in csv
-    csv_file = 'users.csv'
-    temp_file = 'users_temp.csv'    # use a temp file
+    csv_file = 'csv/users.csv'
+    temp_file = 'csv/users_temp.csv'    # use a temp file
 
     with open(csv_file, 'r') as file, open(temp_file, 'w', newline='') as temp:
         reader = csv.reader(file)
@@ -993,8 +972,8 @@ def deleteChild(id, tree):
             parents[1] = 0
 
      # Delete in csv
-    csv_file = 'users.csv'
-    temp_file = 'users_temp.csv'    # use a temp file
+    csv_file = 'csv/users.csv'
+    temp_file = 'csv/users_temp.csv'    # use a temp file
 
     with open(csv_file, 'r') as file, open(temp_file, 'w', newline='') as temp:
         reader = csv.reader(file)
@@ -1020,10 +999,11 @@ def lookupFamilyTies(family_tree, user_id, user_info):
     print("(6) Partenaire")
     print("(7) GrandChildrens")
     print("(8) Cousins")
+    print("(9) nephews")
     
     while True:
         choice = input("\nEnter your choice: ")
-        if choice == '1' or choice == '2' or choice == '3' or choice == '4' or choice == '5' or choice == '6' or choice =='7' or choice =='8':
+        if choice == '1' or choice == '2' or choice == '3' or choice == '4' or choice == '5' or choice == '6' or choice =='7' or choice =='8' or choice =='9':
             break
         else:
             print(Fore.RED + "Invalid input. Please enter a valid phone number." + Style.RESET_ALL)
@@ -1075,6 +1055,13 @@ def lookupFamilyTies(family_tree, user_id, user_info):
         cousins= getCousins(family_tree, user_id)
         print(Fore.BLUE + "\nCousins:" + Style.RESET_ALL)
         printPersonsFromId(cousins, user_info)
+
+    elif choice == '9':  # nephews
+        print("Looking up nephews")
+        cousins= getNephews(family_tree, user_id)
+        print(Fore.BLUE + "\nNephews:" + Style.RESET_ALL)
+        printPersonsFromId(cousins, user_info)
+
     else:
         print("Invalid choice.")
 
@@ -1143,7 +1130,15 @@ def getCousins(family_tree, user_id):
         cousins.update(getChildren(family_tree, aunt_uncle))
     return list(cousins)
 
-
+def getNephews(family_tree, user_id):
+    nephews = set()
+    siblings = getSiblings(family_tree, user_id)
+    for sibling_id in siblings:
+        sibling_children = getChildren(family_tree, sibling_id)
+        for sibling_child_id in sibling_children:
+            if sibling_child_id != user_id:
+                nephews.add(sibling_child_id)
+    return list(nephews)
 
 
 
@@ -1220,7 +1215,7 @@ def connex(tree, current_id, visited=None, connected_ids=None):
 
 
 
-def treeSize(tree):
+def treeSize(tree):     # Ask admin for a person and show his tree size
     # Get the id of someone to know which tree
     while True:
         id = input("Enter the id of someone who is in the tree you want to see the size: ")
@@ -1239,8 +1234,8 @@ def treeSize(tree):
 
 
 
-def idInCsv(id):
-    csv_file = "users.csv"
+def idInCsv(id):    # Look if a person is in the users.csv from his id
+    csv_file = "csv/users.csv"
     with open(csv_file, 'r', newline='') as file:
         reader = csv.reader(file)
         for row in reader:
@@ -1250,148 +1245,24 @@ def idInCsv(id):
 
 
 
-
-
-
-
-def print_connected_names(id, family_tree, user_info):
-    connected_ids = connex(family_tree, id)
-    print("\n\033[94mFamily:\033[0m")  # Utilisation de codes d'échappement ANSI pour afficher en bleu
-    for person_id in connected_ids:
-        print(user_info.get(str(person_id), "Unknown"))
-
-
-
-def print_all_connected_trees():
-    user_info = load_user_info('users.csv')
+def print_all_connected_trees():    # All connex parts
+    user_info = load_user_info('csv/users.csv')
     family_tree = csvToTree()
-    visited_ids = set()  # Pour stocker les IDs des personnes déjà rencontrées
-    tree_count = 1  # Compteur pour numéroter les arbres connexes
-    with open('users.csv', 'r') as file:
+    visited_ids = set()  # To stock already visited ids
+    tree_count = 1  # Follow the number of connex trees
+    with open('csv/users.csv', 'r') as file:
         csv_reader = csv.DictReader(file)
         for row in csv_reader:
             person_id = int(row['id'])
-            if person_id not in visited_ids:  # Vérifie si la personne a déjà été rencontrée
-                connected_ids = connex(family_tree, person_id)  # Récupère l'arbre connexe de la personne
+            if person_id not in visited_ids:  # If not already visited
+                connected_ids = connex(family_tree, person_id)  # Get the connex tree of the person
                 print(Fore.BLUE + f"\nFamily {tree_count}:" + Style.RESET_ALL)
-                tree_count += 1  # Incrémente le compteur pour le prochain arbre connexe
+                tree_count += 1  
                 for id in connected_ids:
-                    print(user_info.get(str(id), "Unknown"))  # Affiche le nom de la personne à partir de son ID
-                visited_ids.update(connected_ids)  # Met à jour les IDs des personnes déjà rencontrées
-    print()  # Ajoute une ligne vide après avoir parcouru tous les arbres connexes
+                    print(user_info.get(str(id), "Unknown"))  # Print the persons of the tree
+                visited_ids.update(connected_ids) 
+    print()
 
-
-
-
-
-def print_largest_connected_tree():
-    user_info = load_user_info('users.csv')
-    family_tree = csvToTree()
-    visited_ids = set()  # Pour stocker les IDs des personnes déjà rencontrées
-    largest_tree = []  # Liste pour stocker l'arbre connexe avec le plus grand nombre d'individus
-    max_size = 0  # Variable pour suivre la taille maximale de l'arbre connexe
-
-    for person_id in family_tree.keys():
-        if person_id not in visited_ids:  # Vérifie si la personne a déjà été rencontrée
-            connected_ids = connex(family_tree, person_id)  # Récupère l'arbre connexe de la personne
-            if len(connected_ids) > max_size:  # Vérifie si l'arbre connexe actuel est le plus grand rencontré jusqu'à présent
-                max_size = len(connected_ids)
-                largest_tree = connected_ids
-
-    if largest_tree:
-        print(Fore.BLUE + f"\nLargest Family (Size: {max_size}):" + Style.RESET_ALL)
-        for id in largest_tree:
-            print(user_info.get(str(id), "Unknown"))  # Affiche le nom de la personne à partir de son ID
-    else:
-        print("No connected tree found.")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def get_descendants(tree, person_id):
-    descendants = set()
-
-    # Fonction récursive pour récupérer tous les descendants
-    def recursive_descendants(current_id):
-        if current_id in tree:
-            for parent_id, child_ids in tree.items():
-                if current_id in child_ids:
-                    descendants.add(parent_id)
-                    recursive_descendants(parent_id)
-
-    recursive_descendants(person_id)
-    return descendants
-
-
-def delete_node_and_descendants(id, tree, user_info):
-    has_spouse = bool(getSpouse(tree, id))
-
-    descendants = get_descendants(tree, id)
-
-    if descendants:
-        print("Deleting descendants...")
-        for descendant_id in descendants:
-            delete_node_and_descendants(descendant_id, tree, user_info)
-
-    print(f"Deleting person {user_info.get(str(id), 'Unknown')} and their descendants...")
-    delete_person(id, tree)
-    print(f"Person {user_info.get(str(id), 'Unknown')} and their descendants have been deleted.")
-
-    # Remove person from users.csv
-    remove_person_from_csv(id)
-    print(f"Person {user_info.get(str(id), 'Unknown')} has been removed from users.csv.")
 
 
 def delete_person(id, tree):
@@ -1404,9 +1275,10 @@ def delete_person(id, tree):
             parents[1] = 0
 
 
+
 def remove_person_from_csv(id):
-    csv_file = 'users.csv'
-    temp_file = 'users_temp.csv'
+    csv_file = 'csv/users.csv'
+    temp_file = 'csv/users_temp.csv'
 
     with open(csv_file, 'r') as file, open(temp_file, 'w', newline='') as temp:
         reader = csv.reader(file)
@@ -1421,13 +1293,61 @@ def remove_person_from_csv(id):
 
 
 
+def get_descendant(tree, person_id):
+    descendants = set()
+
+    def recursive_descendants(current_id):
+        if current_id in tree:
+            child_ids = tree[current_id]
+            descendants.update(child_ids)
+            for child_id in child_ids:
+                recursive_descendants(child_id)
+
+    recursive_descendants(person_id)
+    return descendants
 
 
 
+def delete_node_and_descendants(id, tree, user_info):
+    has_spouse = bool(getSpouse(tree, id))
+
+    descendants = get_descendant(tree, id)
+
+    if descendants:
+        print("Deleting descendants...")
+        for descendant_id in descendants:
+            delete_node_and_descendants(descendant_id, tree, user_info)
+
+    print(f"Deleting {user_info.get(str(id), 'Unknown')} and their descendants...")
+    delete_person(id, tree)
+    print(f"{user_info.get(str(id), 'Unknown')} and their descendants have been deleted.")
+
+    # Remove person from users.csv
+    remove_person_from_csv(id)
+    print(f"{user_info.get(str(id), 'Unknown')} has been removed from users.csv.")
 
 
 
+def print_largest_connected_tree():     # Most represented family
+    user_info = load_user_info('csv/users.csv')
+    family_tree = csvToTree()
+    visited_ids = set()  # To stock already visited ids
+    largest_tree = []  # To stock the largest tree
+    max_size = 0  # Follow the max size
 
+    for person_id in family_tree.keys():
+        if person_id not in visited_ids:  # If not already visited
+            connected_ids = connex(family_tree, person_id)  # Get the connex tree of the person
+            if len(connected_ids) > max_size:  # look if this tree is the biggest
+                max_size = len(connected_ids)
+                largest_tree = connected_ids
+
+    if largest_tree:
+        print(Fore.BLUE + f"\nLargest Family (Size: {max_size}):" + Style.RESET_ALL)
+        for id in largest_tree:
+            print(user_info.get(str(id), "Unknown"))    #  Print the persons of the tree
+    else:
+        print("No connected tree found.")
 
 
 
@@ -1444,7 +1364,7 @@ def connected(id, admin):    # Display the menu when you are connected
     print("(5) delete a child")
     print(Fore.YELLOW + " -- LOOK-UP --" + Style.RESET_ALL)
     print("(6) look-up the entire tree")
-    print("(7) look-up your family tree") 
+    print("(7) look-up your family tree")  
     print("(8) look-up your descendants")  
     print("(9) look-up your ancestry")
     print("(10) look-up your ancestry and descndants")
@@ -1462,7 +1382,7 @@ def connected(id, admin):    # Display the menu when you are connected
     print(Fore.RED + "(0) Quit" + Style.RESET_ALL)
     
     # Info collection for different cases
-    user_info = load_user_info('users.csv')
+    user_info = load_user_info('csv/users.csv')
     familyTree = csvToTree()
     id = int(id)
 
@@ -1497,9 +1417,6 @@ def connected(id, admin):    # Display the menu when you are connected
         elif choice == '7':     # look-up your family tree  
             printFamilyTree(familyTree, id, user_info)
             printDescendants(familyTree, id, user_info)
-
-
-            """print_connected_names(id, familyTree, user_info)"""
             
         elif choice == '8':     # look-up your descendants 
             printDescendants(familyTree, id, user_info)
@@ -1529,8 +1446,6 @@ def connected(id, admin):    # Display the menu when you are connected
         elif choice == '15' and admin == 'y':       # deleting a node and its descendants
             delete_node_and_descendants(id, familyTree, user_info)
             
-
-
         elif choice == '16' and admin == 'y':       # track the evolution of family tree size.
             treeSize(familyTree)
 
@@ -1542,10 +1457,11 @@ def connected(id, admin):    # Display the menu when you are connected
             break
 
     
-def csvToTree():    # Initialise the whole family tree from links.csv
+
+def csvToTree():    # Initialise the whole family tree from csv/links.csv
     family_tree = {}
     
-    file_path = 'links.csv'
+    file_path = 'csv/links.csv'
 
     with open(file_path, 'r') as file:
         for line in file:
@@ -1558,8 +1474,8 @@ def csvToTree():    # Initialise the whole family tree from links.csv
 
 
 
-def treeToCsv(family_tree):
-    file_path = 'links.csv'
+def treeToCsv(family_tree):     # Update csv/links.csv from the tree
+    file_path = 'csv/links.csv'
 
     with open(file_path, 'w', newline='') as file:
         csv_writer = csv.writer(file)
@@ -1568,12 +1484,4 @@ def treeToCsv(family_tree):
 
 
 
-
-#print(familyTree)
-#print_family_tree(family_tree, 6, user_info)
-menu()
-#addParent(familyTree,11)
-
-"""familyTree = csvToTree()
-print("Les id connexes: ",connex(familyTree, 1))
-treeSize(familyTree)"""
+menu()  # Start the code 
