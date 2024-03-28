@@ -990,7 +990,7 @@ def deleteChild(id, tree):
 
 
 def lookupFamilyTies(family_tree, user_id, user_info):
-    print("Choose a family tie to look up:")
+    print(Fore.BLUE + "Choose a family tie to look up:" + Style.RESET_ALL)
     print("(1) Grandparents")
     print("(2) Parents")
     print("(3) Siblings")
