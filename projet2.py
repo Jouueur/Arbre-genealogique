@@ -641,12 +641,14 @@ def getSibling(tree, id, dadId, momId):
 
 
 
-def printFamilyTree(tree, current_id, user_info, indent="", root=True):
+"""def printFamilyTree(tree, current_id, user_info, indent="", root=True):
     if root:
         # Afficher le nom et prénom de l'utilisateur racine
         print(f"{indent}Arbre Généalogique de {user_info.get(str(current_id), 'ID inconnu')}:")
         parentsId = getParentsId(tree,current_id)
         tabSiblings = getSibling(tree,current_id, parentsId[0], parentsId[1])
+        tabC = getAuntsUncles(tree, current_id)
+        tabS = getSpouse(tree, current_id)
 
         print(Fore.BLUE + "Siblings: " + Style.RESET_ALL)
         for sibling in tabSiblings:
@@ -656,6 +658,47 @@ def printFamilyTree(tree, current_id, user_info, indent="", root=True):
         print(" ")
         print(Fore.BLUE + "Ancestry: " + Style.RESET_ALL)
 
+    if current_id in tree:
+        for child_id in tree[current_id]:
+            # Utiliser user_info pour récupérer le nom et prénom en fonction de l'ID
+            child_name = user_info.get(str(child_id), 'ID inconnu')
+            print(f"{indent}- {child_name}")
+            # Appel récursif pour afficher les enfants
+            printFamilyTree(tree, child_id, user_info, indent + "  ", root=False)"""
+
+
+def printFamilyTree(tree, current_id, user_info, indent="", root=True):
+    if root:
+        # Afficher le nom et prénom de l'utilisateur racine
+        print(f"{indent}Arbre Généalogique de {user_info.get(str(current_id), 'ID inconnu')}:")
+        parentsId = getParentsId(tree,current_id)
+        tabSiblings = getSibling(tree,current_id, parentsId[0], parentsId[1])
+        tabC = getAuntsUncles(tree, current_id)
+        tabS = getSpouse(tree, current_id)
+        tabD = getCousins(tree, current_id)
+
+        print(Fore.BLUE + "Siblings: " + Style.RESET_ALL)
+        for sibling in tabSiblings:
+            siblingName = user_info.get(str(sibling), 'ID inconnu')
+            print(" - " + siblingName)
+                
+        print(Fore.BLUE + "\nSpouse: " + Style.RESET_ALL)
+        spouse_id = tabS[0] if tabS else None
+        spouse_name = user_info.get(str(spouse_id), 'Non marié(e)')
+        print(" - " + spouse_name)
+        
+        print(Fore.BLUE + "\nUncles and Aunts: " + Style.RESET_ALL)
+        for uncleaunt_id in tabC:
+            uncleaunt_name = user_info.get(str(uncleaunt_id), 'ID inconnu')
+            print(" - " + uncleaunt_name)
+
+        print(Fore.BLUE + "\nCousins: " + Style.RESET_ALL)
+        for cousins_id in tabD:
+            cousins_name = user_info.get(str(cousins_id), 'ID inconnu')
+            print(" - " + cousins_name)
+
+
+        print(Fore.BLUE + "\nAncestry: " + Style.RESET_ALL)
     if current_id in tree:
         for child_id in tree[current_id]:
             # Utiliser user_info pour récupérer le nom et prénom en fonction de l'ID
@@ -976,10 +1019,11 @@ def lookupFamilyTies(family_tree, user_id, user_info):
     print("(5) Aunts and Uncles")
     print("(6) Partenaire")
     print("(7) GrandChildrens")
+    print("(8) Cousins")
     
     while True:
         choice = input("\nEnter your choice: ")
-        if choice == '1' or choice == '2' or choice == '3' or choice == '4' or choice == '5' or choice == '6' or choice =='7':
+        if choice == '1' or choice == '2' or choice == '3' or choice == '4' or choice == '5' or choice == '6' or choice =='7' or choice =='8':
             break
         else:
             print(Fore.RED + "Invalid input. Please enter a valid phone number." + Style.RESET_ALL)
@@ -1025,6 +1069,12 @@ def lookupFamilyTies(family_tree, user_id, user_info):
         grandchildren= getGrandChildren(family_tree, user_id)
         print(Fore.BLUE + "\nGrandChildrens:" + Style.RESET_ALL)
         printPersonsFromId(grandchildren, user_info)
+
+    elif choice == '8':  # Cousins
+        print("Looking up Cousins")
+        cousins= getCousins(family_tree, user_id)
+        print(Fore.BLUE + "\nCousins:" + Style.RESET_ALL)
+        printPersonsFromId(cousins, user_info)
     else:
         print("Invalid choice.")
 
@@ -1085,6 +1135,17 @@ def getSpouse(family_tree, user_id):
             if parent != user_id:
                 spouse.add(parent)
     return list(spouse)
+
+def getCousins(family_tree, user_id):
+    cousins = set()
+    aunts_uncles = getAuntsUncles(family_tree, user_id)
+    for aunt_uncle in aunts_uncles:
+        cousins.update(getChildren(family_tree, aunt_uncle))
+    return list(cousins)
+
+
+
+
 
 def printPersonsFromId(ids, user_info):
     for id in ids:
@@ -1437,10 +1498,9 @@ def connected(id, admin):    # Display the menu when you are connected
         elif choice == '7':     # look-up your family tree  
             printFamilyTree(familyTree, id, user_info)
             printDescendants(familyTree, id, user_info)
-            getParents(familyTree,id)
 
 
-            print_connected_names(id, familyTree, user_info)
+            """print_connected_names(id, familyTree, user_info)"""
             
         elif choice == '8':     # look-up your descendants 
             printDescendants(familyTree, id, user_info)
